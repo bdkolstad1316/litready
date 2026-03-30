@@ -16,7 +16,24 @@ Usage:
 import argparse
 import copy
 from pathlib import Path
-from lxml import etree
+import xml.etree.ElementTree as etree
+
+# Register namespaces to prevent ns0/ns1 prefix mangling
+import xml.etree.ElementTree as _ET
+_ET.register_namespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main')
+_ET.register_namespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships')
+_ET.register_namespace('mc', 'http://schemas.openxmlformats.org/markup-compatibility/2006')
+_ET.register_namespace('a', 'http://schemas.openxmlformats.org/drawingml/2006/main')
+_ET.register_namespace('w14', 'http://schemas.microsoft.com/office/word/2010/wordml')
+_ET.register_namespace('w15', 'http://schemas.microsoft.com/office/word/2012/wordml')
+_ET.register_namespace('w16se', 'http://schemas.microsoft.com/office/word/2015/wordml/symex')
+_ET.register_namespace('w16cid', 'http://schemas.microsoft.com/office/word/2016/wordml/cid')
+_ET.register_namespace('w16', 'http://schemas.microsoft.com/office/word/2018/wordml')
+_ET.register_namespace('w16cex', 'http://schemas.microsoft.com/office/word/2018/wordml/cex')
+_ET.register_namespace('w16sdtdh', 'http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash')
+_ET.register_namespace('w16du', 'http://schemas.microsoft.com/office/word/2023/wordml/word16du')
+_ET.register_namespace('w16sdtfl', 'http://schemas.microsoft.com/office/word/2024/wordml/sdtformatlock')
+
 import zipfile
 import shutil
 import tempfile
@@ -116,10 +133,8 @@ def qn(tag):
 
 def build_paragraph_style_xml(style_id, style_def):
     """Build a <w:style> element for a paragraph style."""
-    style_el = etree.SubElement(
-        etree.Element('dummy'), qn('w:style'),
-        {qn('w:type'): 'paragraph', qn('w:styleId'): style_id, qn('w:customStyle'): '1'}
-    )
+    style_el = etree.Element(qn('w:style'),
+        {qn('w:type'): 'paragraph', qn('w:styleId'): style_id, qn('w:customStyle'): '1'})
     
     etree.SubElement(style_el, qn('w:name'), {qn('w:val'): style_def['name']})
     etree.SubElement(style_el, qn('w:basedOn'), {qn('w:val'): style_def['basedOn']})
@@ -152,10 +167,8 @@ def build_paragraph_style_xml(style_id, style_def):
 
 def build_character_style_xml(style_id, style_def):
     """Build a <w:style> element for a character style."""
-    style_el = etree.SubElement(
-        etree.Element('dummy'), qn('w:style'),
-        {qn('w:type'): 'character', qn('w:styleId'): style_id, qn('w:customStyle'): '1'}
-    )
+    style_el = etree.Element(qn('w:style'),
+        {qn('w:type'): 'character', qn('w:styleId'): style_id, qn('w:customStyle'): '1'})
     
     etree.SubElement(style_el, qn('w:name'), {qn('w:val'): style_def['name']})
     etree.SubElement(style_el, qn('w:basedOn'), {qn('w:val'): 'DefaultParagraphFont'})
@@ -540,7 +553,7 @@ def neutralize_theme_fonts(theme_path):
             if 'panose' in elem.attrib:
                 del elem.attrib['panose']
     
-    tree.write(str(theme_path), xml_declaration=True, encoding='UTF-8', standalone=True)
+    tree.write(str(theme_path), xml_declaration=True, encoding='UTF-8')
 
 
 def clean_font_table(font_table_path):
@@ -568,7 +581,7 @@ def clean_font_table(font_table_path):
             if name and name not in safe_fonts:
                 root.remove(font)
     
-    tree.write(str(font_table_path), xml_declaration=True, encoding='UTF-8', standalone=True)
+    tree.write(str(font_table_path), xml_declaration=True, encoding='UTF-8')
 
 
 # ============================================================
@@ -619,8 +632,8 @@ def process_docx(input_path, output_path, genre='prose'):
             clean_font_table(font_table_path)
         
         # Write modified XML back
-        doc_tree.write(str(doc_path), xml_declaration=True, encoding='UTF-8', standalone=True)
-        styles_tree.write(str(styles_path), xml_declaration=True, encoding='UTF-8', standalone=True)
+        doc_tree.write(str(doc_path), xml_declaration=True, encoding='UTF-8')
+        styles_tree.write(str(styles_path), xml_declaration=True, encoding='UTF-8')
         
         # Repack as .docx
         with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zout:
