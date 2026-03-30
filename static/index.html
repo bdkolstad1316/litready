@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talking River Review — Production Tools</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,300;1,8..60,400&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&display=swap');
+
+  :root {
+    --warrior-blue: #003865;
+    --warrior-deep: #001e38;
+    --warrior-mid: #0a4d7a;
+    --river-teal: #1a6b7a;
+    --river-glow: #5eb8cf;
+    --river-pale: #a8d8e6;
+    --river-mist: rgba(94, 184, 207, 0.08);
+    --cream: #f8f6f1;
+    --cream-warm: #f3f0e8;
+    --parchment: #edeadf;
+    --ink: #1a2332;
+    --ink-soft: #3d4f63;
+    --ink-muted: #7a8899;
+    --red-accent: #CC0000;
+    --white: #ffffff;
+    --success: #2d8a6e;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'DM Sans', Arial, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+    --radius: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: var(--cream);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header {
+    background: var(--warrior-deep);
+    position: relative;
+    overflow: hidden;
+    animation: entrance 0.5s ease-out;
+  }
+
+  .header-river {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .header-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .brand-text { display: flex; flex-direction: column; }
+
+  .brand-name {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .brand-sub {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(94, 184, 207, 0.12);
+    border: 1px solid rgba(94, 184, 207, 0.2);
+    border-radius: 100px;
+    padding: 0.35rem 0.8rem;
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--river-glow);
+    letter-spacing: 0.03em;
+  }
+
+  .header-badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--river-glow);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
+  .main {
+    flex: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem 4rem;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .tool-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .tool-intro { margin-bottom: 0.5rem; }
+
+  .tool-intro h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+    font-weight: 400;
+    color: var(--warrior-blue);
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+
+  .tool-intro h1 em {
+    font-style: italic;
+    color: var(--river-teal);
+  }
+
+  .tool-intro p {
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  .drop-zone {
+    background: var(--white);
+    border: 2px dashed rgba(0, 56, 101, 0.12);
+    border-radius: var(--radius);
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    position: relative;
+  }
+
+  .drop-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--river-mist), transparent);
+    opacity: 0;
+    transition: opacity 0.35s;
+    pointer-events: none;
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--river-teal);
+    box-shadow: var(--shadow-md), 0 0 0 4px rgba(94, 184, 207, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .drop-zone:hover::before, .drop-zone.drag-over::before { opacity: 1; }
+
+  .drop-icon {
+    color: var(--river-teal);
+    margin-bottom: 1rem;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+  }
+
+  .drop-zone:hover .drop-icon { opacity: 1; }
+
+  .drop-text {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--warrior-blue);
+    margin-bottom: 0.3rem;
+  }
+
+  .drop-sub {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+  }
+
+  .drop-sub strong {
+    color: var(--river-teal);
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .drop-sub strong:hover { text-decoration: underline; }
+
+  .file-input { display: none; }
+
+  .file-loaded {
+    display: none;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .file-loaded.visible { display: flex; }
+
+  .file-card {
+    background: var(--white);
+    border: 1px solid rgba(0,56,101,0.08);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .file-card-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2b5797, #1a3a6b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .file-card-icon span {
+    font-family: var(--sans);
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .file-card-info { flex: 1; min-width: 0; }
+
+  .file-card-name {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-card-meta {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    margin-top: 1px;
+  }
+
+  .file-card-remove {
+    background: none;
+    border: none;
+    color: var(--ink-muted);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+  }
+
+  .file-card-remove:hover {
+    background: rgba(204, 0, 0, 0.06);
+    color: var(--red-accent);
+  }
+
+  .genre-row { display: flex; gap: 0.6rem; }
+
+  .genre-btn {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    background: var(--white);
+    border: 1.5px solid rgba(0, 56, 101, 0.1);
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+  }
+
+  .genre-btn:hover {
+    border-color: var(--river-teal);
+    color: var(--river-teal);
+  }
+
+  .genre-btn.selected {
+    background: var(--warrior-blue);
+    border-color: var(--warrior-blue);
+    color: var(--white);
+    box-shadow: 0 2px 12px rgba(0, 56, 101, 0.2);
+  }
+
+  .clean-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.9rem 2rem;
+    background: linear-gradient(135deg, var(--warrior-blue), var(--warrior-mid));
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.35s;
+    box-shadow: 0 4px 16px rgba(0, 56, 101, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .clean-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--river-teal), var(--river-glow));
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+
+  .clean-btn:hover::after { opacity: 1; }
+  .clean-btn span, .clean-btn svg { position: relative; z-index: 1; }
+
+  .clean-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(0, 56, 101, 0.25);
+  }
+
+  .clean-btn:active { transform: translateY(0); }
+  .clean-btn svg { width: 18px; height: 18px; }
+
+  .processing {
+    display: none;
+    background: var(--white);
+    border: 1px solid rgba(0,56,101,0.08);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .processing.visible { display: block; }
+
+  .proc-spinner {
+    width: 48px; height: 48px;
+    margin: 0 auto 1.2rem;
+    animation: spin 1.5s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .proc-title {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--warrior-blue);
+    margin-bottom: 0.3rem;
+  }
+
+  .proc-sub {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .proc-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .proc-step {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    transition: color 0.4s;
+    padding: 0.25rem 0;
+  }
+
+  .proc-step-indicator {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,56,101,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.4s;
+  }
+
+  .proc-step.active { color: var(--river-teal); font-weight: 500; }
+
+  .proc-step.active .proc-step-indicator {
+    border-color: var(--river-teal);
+    background: rgba(94, 184, 207, 0.1);
+    box-shadow: 0 0 8px rgba(94, 184, 207, 0.2);
+  }
+
+  .proc-step.done { color: var(--ink-soft); }
+
+  .proc-step.done .proc-step-indicator {
+    border-color: var(--success);
+    background: var(--success);
+  }
+
+  .done-state {
+    display: none;
+    background: var(--white);
+    border: 1px solid rgba(45, 138, 110, 0.15);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .done-state.visible { display: block; }
+
+  .done-icon {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: rgba(45, 138, 110, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--success);
+  }
+
+  .done-title {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+
+  .done-sub {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .done-actions { display: flex; gap: 0.8rem; }
+
+  .dl-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.2rem;
+    background: var(--warrior-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .dl-btn:hover { background: var(--warrior-mid); transform: translateY(-1px); }
+  .dl-btn svg { width: 16px; height: 16px; }
+
+  .reset-btn {
+    padding: 0.75rem 1.2rem;
+    background: none;
+    color: var(--ink-muted);
+    border: 1.5px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .reset-btn:hover { border-color: var(--ink-muted); color: var(--ink-soft); }
+
+  .sidebar {
+    position: sticky;
+    top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .sidebar-card {
+    background: var(--white);
+    border: 1px solid rgba(0,56,101,0.06);
+    border-radius: var(--radius);
+    padding: 1.4rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .sidebar-card h3 {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--warrior-blue);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sidebar-card h3 svg { width: 16px; height: 16px; color: var(--river-teal); }
+
+  .style-list { display: flex; flex-direction: column; gap: 0.45rem; }
+
+  .style-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0;
+  }
+
+  .style-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px; height: 20px;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    background: rgba(0, 56, 101, 0.05);
+    color: var(--warrior-blue);
+    border-radius: 4px;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  .style-row-text {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+
+  .style-row-text strong { font-weight: 600; color: var(--ink); }
+
+  .tech-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+  }
+
+  .tech-note-icon {
+    width: 16px; height: 16px;
+    flex-shrink: 0;
+    color: var(--river-teal);
+    margin-top: 1px;
+  }
+
+  .tech-note-text {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+
+  .footer {
+    border-top: 1px solid rgba(0,56,101,0.06);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    background: var(--cream-warm);
+  }
+
+  .footer-text {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    letter-spacing: 0.03em;
+  }
+
+  .footer-text a { color: var(--river-teal); text-decoration: none; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in { animation: fadeIn 0.4s ease-out; }
+
+  /* ---- Page entrance stagger ---- */
+  @keyframes entrance {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tool-intro {
+    opacity: 0;
+    animation: entrance 0.7s ease-out 0.15s forwards;
+  }
+
+  .drop-zone {
+    opacity: 0;
+    animation: entrance 0.7s ease-out 0.35s forwards;
+  }
+
+  .sidebar-card:nth-child(1) { opacity: 0; animation: entrance 0.6s ease-out 0.3s forwards; }
+  .sidebar-card:nth-child(2) { opacity: 0; animation: entrance 0.6s ease-out 0.45s forwards; }
+  .sidebar-card:nth-child(3) { opacity: 0; animation: entrance 0.6s ease-out 0.6s forwards; }
+
+  /* ---- Gentle idle float on upload icon ---- */
+  @keyframes float-idle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .drop-icon {
+    animation: float-idle 3.5s ease-in-out infinite;
+  }
+
+  /* ---- River shimmer on clean button ---- */
+  @keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 200%; }
+  }
+
+  .clean-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    z-index: 1;
+    animation: shimmer 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* ---- Subtle hover lift on sidebar cards ---- */
+  .sidebar-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .sidebar-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* ---- Style row stagger on hover ---- */
+  .style-row {
+    transition: transform 0.2s ease, background 0.2s ease;
+    border-radius: 6px;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+    margin-left: -0.3rem;
+    margin-right: -0.3rem;
+  }
+
+  .style-row:hover {
+    transform: translateX(4px);
+    background: rgba(94, 184, 207, 0.04);
+  }
+
+  @media (max-width: 860px) {
+    .main { grid-template-columns: 1fr; padding: 2rem 1.5rem; gap: 2rem; }
+    .sidebar { position: static; }
+    .header-badge { display: none; }
+    .genre-row { flex-wrap: wrap; }
+    .genre-btn { flex: none; width: calc(50% - 0.3rem); }
+  }
+
+  @media (max-width: 500px) {
+    .done-actions { flex-direction: column; }
+    .genre-btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <canvas class="header-river" id="headerRiver"></canvas>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-text">
+        <span class="brand-name">Talking River Review</span>
+        <span class="brand-sub">The Literary Journal of Lewis-Clark State College</span>
+      </div>
+    </div>
+    <div class="header-badge">
+      <div class="header-badge-dot"></div>
+      Production Tools
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="tool-col">
+    <div class="tool-intro">
+      <h1>Clean your <em>manuscript</em></h1>
+      <p>Drop an accepted .docx below. The engine strips inline formatting, maps named styles, and exports a clean file ready for InDesign.</p>
+    </div>
+
+    <div id="dropZone" class="drop-zone">
+      <div class="drop-icon">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </div>
+      <p class="drop-text">Drop your .docx here</p>
+      <p class="drop-sub">or <strong id="browseBtn">browse</strong> to select &nbsp;·&nbsp; .docx only</p>
+      <input type="file" class="file-input" id="fileInput" accept=".docx">
+    </div>
+
+    <div id="fileLoaded" class="file-loaded">
+      <div class="file-card">
+        <div class="file-card-icon"><span>docx</span></div>
+        <div class="file-card-info">
+          <div class="file-card-name" id="fileName">—</div>
+          <div class="file-card-meta" id="fileMeta">—</div>
+        </div>
+        <button class="file-card-remove" id="removeBtn" title="Remove">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="genre-row" id="genreRow">
+        <button class="genre-btn" data-genre="prose">Prose</button>
+        <button class="genre-btn" data-genre="poetry">Poetry</button>
+        <button class="genre-btn" data-genre="nonfiction">Nonfiction</button>
+        <button class="genre-btn" data-genre="hybrid">Hybrid</button>
+      </div>
+
+      <button class="clean-btn" id="cleanBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        <span>Clean &amp; Map Styles</span>
+      </button>
+    </div>
+
+    <div id="processing" class="processing">
+      <svg class="proc-spinner" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="20" stroke="rgba(0,56,101,0.08)" stroke-width="2.5"/>
+        <path d="M24 4a20 20 0 0 1 20 20" stroke="var(--river-teal)" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <p class="proc-title">The river is working&hellip;</p>
+      <p class="proc-sub">This usually takes a few seconds.</p>
+      <div class="proc-steps">
+        <div class="proc-step" id="ps1"><div class="proc-step-indicator"></div>Unpacking .docx XML</div>
+        <div class="proc-step" id="ps2"><div class="proc-step-indicator"></div>Analyzing paragraph &amp; run formatting</div>
+        <div class="proc-step" id="ps3"><div class="proc-step-indicator"></div>Stripping inline overrides</div>
+        <div class="proc-step" id="ps4"><div class="proc-step-indicator"></div>Mapping named styles</div>
+        <div class="proc-step" id="ps5"><div class="proc-step-indicator"></div>Rebuilding clean .docx</div>
+      </div>
+    </div>
+
+    <div id="doneState" class="done-state">
+      <div class="done-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <p class="done-title">Your document is ready</p>
+      <p class="done-sub">All inline overrides stripped. Paragraph and character styles mapped to TRR's InDesign template. Ready to Place.</p>
+      <div class="done-actions">
+        <button class="dl-btn" id="downloadBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Download Clean .docx</span>
+        </button>
+        <button class="reset-btn" id="resetBtn">Clean Another</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        Paragraph Styles
+      </h3>
+      <div class="style-list">
+        <div class="style-row"><span class="style-tag">¶</span><span class="style-row-text"><strong>Story Title</strong></span></div>
+        <div class="style-row"><span class="style-tag">¶</span><span class="style-row-text"><strong>Author Name</strong></span></div>
+        <div class="style-row"><span class="style-tag">¶</span><span class="style-row-text"><strong>Spacer</strong></span></div>
+        <div class="style-row"><span class="style-tag">¶</span><span class="style-row-text"><strong>Body Copy No Indent</strong></span></div>
+        <div class="style-row"><span class="style-tag">¶</span><span class="style-row-text"><strong>Body Copy</strong> — 0.25" indent</span></div>
+        <div class="style-row"><span class="style-tag">¶</span><span class="style-row-text"><strong>Section Break</strong></span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 7 4 4 20 4 20 7"/>
+          <line x1="9" y1="20" x2="15" y2="20"/>
+          <line x1="12" y1="4" x2="12" y2="20"/>
+        </svg>
+        Character Styles
+      </h3>
+      <div class="style-list">
+        <div class="style-row"><span class="style-tag" style="font-style:italic">I</span><span class="style-row-text"><strong>Italic</strong> — via w:rStyle</span></div>
+        <div class="style-row"><span class="style-tag" style="font-weight:800">B</span><span class="style-row-text"><strong>Bold</strong> — via w:rStyle</span></div>
+        <div class="style-row"><span class="style-tag" style="font-weight:800;font-style:italic">BI</span><span class="style-row-text"><strong>Bold Italic</strong></span></div>
+        <div class="style-row"><span class="style-tag" style="font-variant:small-caps;font-size:0.55rem">SC</span><span class="style-row-text"><strong>Small Caps</strong></span></div>
+        <div class="style-row"><span class="style-tag" style="font-size:0.5rem;vertical-align:super">S</span><span class="style-row-text"><strong>Superscript</strong></span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-card" style="background:var(--cream-warm);border-color:transparent;">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        How It Works
+      </h3>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        <div class="tech-note">
+          <svg class="tech-note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="tech-note-text">Strips all inline formatting — fonts, colors, spacing, kerning</span>
+        </div>
+        <div class="tech-note">
+          <svg class="tech-note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="tech-note-text">Maps to named styles that InDesign recognizes on Place</span>
+        </div>
+        <div class="tech-note">
+          <svg class="tech-note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="tech-note-text">All styles based on Normal independently — no inheritance chains</span>
+        </div>
+        <div class="tech-note">
+          <svg class="tech-note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="tech-note-text">Line spacing set to single — InDesign controls final spacing</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<footer class="footer">
+  <p class="footer-text">Talking River Review &nbsp;·&nbsp; Lewis-Clark State College &nbsp;·&nbsp; Lewiston, Idaho &nbsp;·&nbsp; Powered by <a href="#">LitReady</a></p>
+</footer>
+
+<script>
+  const canvas = document.getElementById('headerRiver');
+  const ctx = canvas.getContext('2d');
+  let cw, ch, waves = [];
+
+  function resizeCanvas() {
+    cw = canvas.width = canvas.parentElement.offsetWidth;
+    ch = canvas.height = canvas.parentElement.offsetHeight;
+    waves = [];
+    for (let i = 0; i < 8; i++) {
+      waves.push({
+        y: ch * 0.3 + (ch * 0.5 / 8) * i,
+        speed: 0.15 + Math.random() * 0.25,
+        amp: 4 + Math.random() * 8,
+        freq: 0.005 + Math.random() * 0.005,
+        phase: Math.random() * Math.PI * 2,
+        opacity: 0.015 + Math.random() * 0.03
+      });
+    }
+  }
+
+  function drawWaves(t) {
+    ctx.clearRect(0, 0, cw, ch);
+    waves.forEach(w => {
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(94,184,207,${w.opacity})`;
+      ctx.lineWidth = 0.8;
+      for (let x = 0; x < cw; x += 2) {
+        const y = w.y + Math.sin(x * w.freq + t * w.speed + w.phase) * w.amp;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+    requestAnimationFrame(drawWaves);
+  }
+
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  requestAnimationFrame(drawWaves);
+
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const browseBtn = document.getElementById('browseBtn');
+  const fileLoaded = document.getElementById('fileLoaded');
+  const fileNameEl = document.getElementById('fileName');
+  const fileMetaEl = document.getElementById('fileMeta');
+  const removeBtn = document.getElementById('removeBtn');
+  const genreRow = document.getElementById('genreRow');
+  const cleanBtn = document.getElementById('cleanBtn');
+  const processing = document.getElementById('processing');
+  const doneState = document.getElementById('doneState');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  let selectedFile = null;
+  let selectedGenre = null;
+
+  browseBtn.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f && f.name.endsWith('.docx')) loadFile(f);
+  });
+
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
+
+  function loadFile(f) {
+    selectedFile = f;
+    fileNameEl.textContent = f.name;
+    fileMetaEl.textContent = formatSize(f.size) + ' · .docx';
+    dropZone.style.display = 'none';
+    fileLoaded.classList.add('visible');
+    fileLoaded.classList.add('fade-in');
+  }
+
+  function formatSize(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(1) + ' MB';
+  }
+
+  removeBtn.addEventListener('click', resetAll);
+
+  genreRow.addEventListener('click', e => {
+    const btn = e.target.closest('.genre-btn');
+    if (!btn) return;
+    genreRow.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedGenre = btn.dataset.genre;
+  });
+
+  // ===== API CONFIG =====
+  // Update this URL after deploying to Railway
+  const API_URL = '';
+
+  let cleanedBlob = null;
+  let cleanedFilename = null;
+
+  cleanBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+    fileLoaded.classList.remove('visible');
+    processing.classList.add('visible');
+    processing.classList.add('fade-in');
+
+    const steps = ['ps1','ps2','ps3','ps4','ps5'];
+    let i = 0;
+    let apiDone = false;
+    let apiError = null;
+
+    // Start the visual step animation
+    function tick() {
+      if (i > 0) {
+        document.getElementById(steps[i-1]).classList.remove('active');
+        document.getElementById(steps[i-1]).classList.add('done');
+      }
+      if (i < steps.length) {
+        document.getElementById(steps[i]).classList.add('active');
+        i++;
+        // If API is done and we're on the last step, finish fast
+        if (apiDone && i >= steps.length) {
+          setTimeout(showResult, 400);
+        } else {
+          setTimeout(tick, 700 + Math.random() * 500);
+        }
+      } else if (apiDone) {
+        showResult();
+      } else {
+        // API still working — hold on the last step
+        const checkInterval = setInterval(() => {
+          if (apiDone) {
+            clearInterval(checkInterval);
+            showResult();
+          }
+        }, 200);
+      }
+    }
+
+    function showResult() {
+      processing.classList.remove('visible');
+      if (apiError) {
+        // Show error — reset to file loaded state
+        alert('Processing failed: ' + apiError);
+        fileLoaded.classList.add('visible');
+        steps.forEach(id => document.getElementById(id).classList.remove('active','done'));
+      } else {
+        doneState.classList.add('visible');
+        doneState.classList.add('fade-in');
+      }
+    }
+
+    tick();
+
+    // Actual API call runs in parallel with the animation
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('genre', selectedGenre || 'prose');
+
+      const response = await fetch(API_URL + '/clean', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ detail: 'Unknown error' }));
+        throw new Error(err.detail || `Server error: ${response.status}`);
+      }
+
+      cleanedBlob = await response.blob();
+      const stem = selectedFile.name.replace('.docx', '');
+      cleanedFilename = stem + '_CLEAN.docx';
+      apiDone = true;
+    } catch (e) {
+      apiError = e.message;
+      apiDone = true;
+    }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    if (!cleanedBlob) return;
+    const url = URL.createObjectURL(cleanedBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = cleanedFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  resetBtn.addEventListener('click', resetAll);
+
+  function resetAll() {
+    selectedFile = null;
+    selectedGenre = null;
+    cleanedBlob = null;
+    cleanedFilename = null;
+    fileInput.value = '';
+    fileLoaded.classList.remove('visible', 'fade-in');
+    processing.classList.remove('visible', 'fade-in');
+    doneState.classList.remove('visible', 'fade-in');
+    dropZone.style.display = '';
+    genreRow.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('selected'));
+    ['ps1','ps2','ps3','ps4','ps5'].forEach(id => {
+      document.getElementById(id).classList.remove('active','done');
+    });
+  }
+</script>
+</body>
+</html>
