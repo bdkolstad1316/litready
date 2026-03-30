@@ -226,6 +226,15 @@ def inject_styles(styles_tree):
     # ---- Also clean the theme reference from the font table ----
     # (The rFonts theme refs in docDefaults resolve to Aptos in modern Word)
     
+    # ---- Strip rFonts from ALL existing style definitions ----
+    # Built-in styles (Heading1, Title, Subtitle, etc.) carry theme font refs
+    # that resolve to Aptos. InDesign reads these and complains.
+    for style in root.findall(qn('w:style')):
+        # Strip from rPr (character formatting in the style)
+        for rPr in style.iter(qn('w:rPr')):
+            for rFonts in list(rPr.findall(qn('w:rFonts'))):
+                rPr.remove(rFonts)
+    
     # Remove any existing LitReady styles (for re-processing)
     all_style_ids = set(PARA_STYLES.keys()) | set(CHAR_STYLES.keys())
     for existing in root.findall(qn('w:style')):
@@ -584,6 +593,26 @@ def clean_font_table(font_table_path):
     tree.write(str(font_table_path), xml_declaration=True, encoding='UTF-8')
 
 
+def clean_settings_fonts(settings_path):
+    """
+    Strip font references from settings.xml (e.g. Cambria Math).
+    """
+    tree = etree.parse(str(settings_path))
+    root = tree.getroot()
+    
+    # Find and neutralize math font references
+    # These use the 'm' namespace (math)
+    for elem in root.iter():
+        tag_local = elem.tag.split('}')[-1] if '}' in elem.tag else elem.tag
+        if tag_local == 'mathFont':
+            # Replace with a universally available font
+            for key in list(elem.attrib.keys()):
+                if 'val' in key:
+                    elem.set(key, 'Cambria Math')  # This one is actually universal with Office
+    
+    tree.write(str(settings_path), xml_declaration=True, encoding='UTF-8')
+
+
 # ============================================================
 # FILE I/O
 # ============================================================
@@ -630,6 +659,11 @@ def process_docx(input_path, output_path, genre='prose'):
         font_table_path = tmpdir / 'word' / 'fontTable.xml'
         if font_table_path.exists():
             clean_font_table(font_table_path)
+        
+        # Clean settings.xml — strip Cambria Math and other font refs
+        settings_path = tmpdir / 'word' / 'settings.xml'
+        if settings_path.exists():
+            clean_settings_fonts(settings_path)
         
         # Write modified XML back
         doc_tree.write(str(doc_path), xml_declaration=True, encoding='UTF-8')
